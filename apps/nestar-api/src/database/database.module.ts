@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { InjectConnection, MongooseModule } from '@nestjs/mongoose';
-import { url } from 'inspector';
 import { Connection } from 'mongoose';
 
 @Module({

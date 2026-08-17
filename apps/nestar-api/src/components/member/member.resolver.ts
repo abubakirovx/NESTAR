@@ -27,11 +27,18 @@ export class MemberResolver {
 			throw new InternalServerErrorException(err);
 		}
 	}
-	@Mutation(() => String)
+	@Mutation(() => Member)
 	@UsePipes(ValidationPipe)
-	public async login(@Args('input') input: LoginInput): Promise<string> {
-		console.log('Mutation: login');
-		return this.memberService.login();
+	public async login(@Args('input') input: LoginInput): Promise<Member> {
+		try {
+			console.log('Mutation: login');
+			console.log('MemberInput=>', input);
+
+			return this.memberService.login(input);
+		} catch (err) {
+			console.log('Error', err);
+			throw new InternalServerErrorException(err);
+		}
 	}
 	@Mutation(() => String)
 	public async updateMember(): Promise<string> {

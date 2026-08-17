@@ -37,12 +37,12 @@ const MemberSchema = new Schema(
 			type: String,
 		},
 
-		memberlmage: {
+		memberImage: {
 			type: String,
+			default: '',
 		},
 		memberAddress: {
 			type: String,
-			default: '',
 		},
 		memberDesc: {
 			type: String,

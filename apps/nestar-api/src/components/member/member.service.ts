@@ -21,7 +21,7 @@ export class MemberService {
 		input.memberPassword = await this.authService.hashedPassword(input.memberPassword);
 		try {
 			const result = await this.memberModel.create(input);
-			// TODO: Authentication via Token
+			result.accessToken=await this.authService.createToken(result);
 
 			return result;
 		} catch (err) {
@@ -31,17 +31,18 @@ export class MemberService {
 	}
 	public async login(input: LoginInput): Promise<Member> {
 		const { memberNick, memberPassword } = input;
-		const response= await this.memberModel.findOne({ memberNick: memberNick }).select('+memberPassword').exec();
+		const response = await this.memberModel.findOne({ memberNick: memberNick }).select('+memberPassword').exec();
 
 		if (!response || response.memberStatus === MemberStatus.DELETE) {
 			throw new InternalServerErrorException(Message.NO_MEMBER_NICK);
 		} else if (response.memberStatus === MemberStatus.BLOCK) {
 			throw new InternalServerErrorException(Message.BLOCKED_USER);
 		}
-		// Compare passwords
-        // @ts-ignore
+
+		// @ts-ignore
 		const isMatch = await this.authService.comparePassword(memberPassword, response.memberPassword);
 		if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
+		response.accessToken=await this.authService.createToken(response)
 
 		return response;
 	}

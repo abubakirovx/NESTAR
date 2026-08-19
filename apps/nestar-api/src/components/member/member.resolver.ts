@@ -1,8 +1,6 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { MemberService } from './member.service';
-import { log } from 'util';
 import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
-import { InternalServerErrorException, UsePipes, ValidationPipe } from '@nestjs/common';
 import { Member } from '../../libs/dto/member/member';
 
 @Resolver()
@@ -15,30 +13,14 @@ export class MemberResolver {
 		return this.memberService.getMember();
 	}
 	@Mutation(() => Member)
-	@UsePipes(ValidationPipe)
 	public async signup(@Args('input') input: MemberInput): Promise<Member> {
-		try {
-			console.log('Mutation: signup');
-			console.log('MemberInput=>', input);
-
-			return this.memberService.signup(input);
-		} catch (err) {
-			console.log('Error', err);
-			throw new InternalServerErrorException(err);
-		}
+		console.log('Mutation: signup');
+		return this.memberService.signup(input);
 	}
 	@Mutation(() => Member)
-	@UsePipes(ValidationPipe)
 	public async login(@Args('input') input: LoginInput): Promise<Member> {
-		try {
-			console.log('Mutation: login');
-			console.log('MemberInput=>', input);
-
-			return this.memberService.login(input);
-		} catch (err) {
-			console.log('Error', err);
-			throw new InternalServerErrorException(err);
-		}
+		console.log('Mutation: login');
+		return this.memberService.login(input);
 	}
 	@Mutation(() => String)
 	public async updateMember(): Promise<string> {

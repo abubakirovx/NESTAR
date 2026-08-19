@@ -21,8 +21,8 @@ export class MemberService {
 
 			return result;
 		} catch (err) {
-			console.log('Error', err);
-			throw new BadRequestException(err);
+			console.log('Service ERROR', err.message);
+			throw new BadRequestException(Message.USED_NICK_OR_PHONE);
 		}
 	}
 	public async login(input: LoginInput): Promise<Member> {

@@ -27,4 +27,16 @@ export class MemberResolver {
 		console.log('Mutation: updateMember');
 		return this.memberService.updateMember();
 	}
+
+	// Autherization Admin
+	@Mutation(() => String)
+	public async getAllMemberByAdmin(): Promise<string> {
+		console.log('Mutation: updateMember');
+		return this.memberService.getAllMemberByAdmin();
+	}
+	@Mutation(() => String)
+	public async updateMemberByAdmin(): Promise<string> {
+		console.log('Mutation: updateMember');
+		return this.memberService.updateMemberByAdmin();
+	}
 }

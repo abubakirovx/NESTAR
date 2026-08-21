@@ -39,7 +39,7 @@ export class MemberService {
 			throw new InternalServerErrorException(Message.BLOCKED_USER);
 		}
 
-		// @ts-ignore
+		if (!response.memberPassword) throw new InternalServerErrorException(Message.BAD_REQUEST);
 		const isMatch = await this.authService.comparePassword(memberPassword, response.memberPassword);
 		if (!isMatch) throw new InternalServerErrorException(Message.WRONG_PASSWORD);
 		response.accessToken=await this.authService.createToken(response)
@@ -49,5 +49,11 @@ export class MemberService {
 
 	public async updateMember(): Promise<string> {
 		return 'updateMember excuted !';
+	}
+	public async getAllMemberByAdmin(): Promise<string> {
+		return 'getAllMemberByAdmin excuted !';
+	}
+	public async updateMemberByAdmin(): Promise<string> {
+		return 'updateMemberByAdmin excuted !';
 	}
 }

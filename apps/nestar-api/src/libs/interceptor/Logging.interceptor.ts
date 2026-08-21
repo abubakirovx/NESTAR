@@ -6,12 +6,12 @@ import { tap } from 'rxjs/operators';
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {
 	private readonly logger: Logger = new Logger();
-	// @ts-ignore
 	intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
 		const recordTime = Date.now();
 		const requestType = context.getType<GqlContextType>();
 		if (requestType === 'http') {
 			// Develop if you needed
+			return next.handle()
 		} else if (requestType === 'graphql') {
 			// (1) Print Request
 			const gqlContext = GqlExecutionContext.create(context);
@@ -27,6 +27,8 @@ export class LoggingInterceptor implements NestInterceptor {
 				}),
 			);
 		}
+		return next.handle()
+
 	}
 	private stringify(context: ExecutionContext): string {
 		console.log(typeof context);

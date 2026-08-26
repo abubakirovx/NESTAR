@@ -7,6 +7,8 @@ import { Message } from '../../libs/enums/common.enum';
 import { MemberStatus } from '../../libs/enums/member.enum';
 import { AuthService } from '../auth/auth.service';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
+import { T } from '../../libs/types/common';
+import { threadId } from 'worker_threads';
 
 @Injectable()
 export class MemberService {
@@ -15,8 +17,16 @@ export class MemberService {
 		private authService: AuthService,
 	) {}
 
-	public async getMember(): Promise<string> {
-		return 'getMember excuted !';
+	public async getMember(targetId: ObjectId): Promise<Member> {
+		const search: T = {
+			_id: targetId,
+			memberStatus: {
+				$in: [MemberStatus.ACTIVE, MemberStatus.BLOCK],
+			},
+		};
+		const result = await this.memberModel.findOne(search).exec();
+		if (!result) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		return result;
 	}
 	public async signup(input: MemberInput): Promise<Member> {
 		input.memberPassword = await this.authService.hashedPassword(input.memberPassword);
@@ -49,13 +59,11 @@ export class MemberService {
 	}
 
 	public async updateMember(memberId: ObjectId, input: MemberUpdate): Promise<Member> {
-		const result = await this.memberModel.findOneAndUpdate(
-			{ _id: memberId, memberStatus: MemberStatus.ACTIVE },
-			input,
-			{ new: true },
-		);
+		const result = await this.memberModel
+			.findOneAndUpdate({ _id: memberId, memberStatus: MemberStatus.ACTIVE }, input, { new: true })
+			.exec();
 		if (!result) throw new InternalServerErrorException(Message.UPDATE_FAILED);
-		result.accessToken = await this.authService.createToken(result)
+		result.accessToken = await this.authService.createToken(result);
 		return result;
 	}
 	public async getAllMemberByAdmin(): Promise<string> {

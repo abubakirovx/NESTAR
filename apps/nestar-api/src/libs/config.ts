@@ -7,7 +7,29 @@ export const availableMemberSorts=['createdAt','updatedAt','memberLikes',"member
 
 // IMAGE CONFIGURATION
 
-export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg','application/octet-stream',];
+
+export const validMimeTypes = ['image/png', 'image/jpeg','image/jpg'];
+export const validExtensions = ['.png', '.jpg', '.jpeg'];
+
+export const isValidImage = (
+	filename: string,
+	mimetype: string,
+): boolean => {
+	const ext = path.extname(filename).toLowerCase();
+
+	// Extension har doim tekshiriladi
+	if (!validExtensions.includes(ext)) {
+		return false;
+	}
+
+	// Postman MIME'ni aniqlay olmagan holat
+	if (mimetype === 'application/octet-stream') {
+		return true;
+	}
+
+	// Normal holat
+	return validMimeTypes.includes(mimetype);
+};
 export const getSerialForImage = (filename: string) => {
 	const ext = path.parse(filename).ext;
 	return uuidv4() + ext;

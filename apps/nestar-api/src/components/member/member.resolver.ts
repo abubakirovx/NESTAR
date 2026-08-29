@@ -100,6 +100,8 @@ export class MemberResolver {
 		@Args('target') target: String,
 	): Promise<string> {
 		console.log('Mutation: imageUploader');
+		console.log('filename =>', filename);
+		console.log('mimetype =>', mimetype);
 
 		if (!filename) throw new Error(Message.UPLOAD_FAILED);
 		const validMime = validMimeTypes.includes(mimetype);
@@ -132,7 +134,7 @@ export class MemberResolver {
 		const uploadedImages: string[] = [];
 		const promisedList = files.map(async (img: Promise<FileUpload>, index: number): Promise<void> => {
 			try {
-				const { filename, mimetype, createReadStream } = await img;
+				const { filename, mimetype, encoding, createReadStream } = await img;
 
 				const validMime = validMimeTypes.includes(mimetype);
 				if (!validMime) throw new Error(Message.PROVIDE_ALLOWED_FORMAT);

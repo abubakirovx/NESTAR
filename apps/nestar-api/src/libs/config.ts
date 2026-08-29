@@ -7,7 +7,7 @@ export const availableMemberSorts=['createdAt','updatedAt','memberLikes',"member
 
 // IMAGE CONFIGURATION
 
-export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg'];
+export const validMimeTypes = ['image/png', 'image/jpg', 'image/jpeg','application/octet-stream',];
 export const getSerialForImage = (filename: string) => {
 	const ext = path.parse(filename).ext;
 	return uuidv4() + ext;

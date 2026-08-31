@@ -3,7 +3,12 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, ObjectId, Schema } from 'mongoose';
 import { AuthService } from '../auth/auth.service';
 import { ViewService } from '../view/view.service';
-import { AgentPropertiesInquiry, AllPropertiesInquiry, PropertiesInquiry, PropertyInput } from '../../libs/dto/property/property.input';
+import {
+	AgentPropertiesInquiry,
+	AllPropertiesInquiry,
+	PropertiesInquiry,
+	PropertyInput,
+} from '../../libs/dto/property/property.input';
 import { Properties, Property } from '../../libs/dto/property/property';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
@@ -195,7 +200,7 @@ export class PropertyService {
 		let { propertyStatus, soldAt, deletedAt } = input;
 		const search: T = {
 			_id: input._id,
-			propertyStatus:PropertyStatus.ACTIVE
+			propertyStatus: PropertyStatus.ACTIVE,
 		};
 
 		if (propertyStatus === PropertyStatus.SOLD) soldAt = moment().toDate();
@@ -215,6 +220,14 @@ export class PropertyService {
 				modifier: -1,
 			});
 		}
+		return result;
+	}
+
+	public async removePropertyByAdmin(propertyId: ObjectId): Promise<Property> {
+		const search: T = { _id: propertyId, propertyStatus: PropertyStatus.DELETE };
+		const result = await this.propertyModel.findOneAndDelete(search).exec();
+		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
+
 		return result;
 	}
 	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {

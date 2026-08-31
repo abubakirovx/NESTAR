@@ -10,11 +10,12 @@ import { Roles } from '../auth/decorators/roles.decorator';
 import { MemberType } from '../../libs/enums/member.enum';
 import { RolesGuard } from '../auth/guards/roles.guard';
 import { MemberUpdate } from '../../libs/dto/member/member.update';
-import { getSerialForImage, isValidImage, shapeIntoMongoObjectId, validMimeTypes } from '../../libs/config';
+import { getSerialForImage, isValidImage, shapeIntoMongoObjectId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
-import { createWriteStream } from 'fs';
+import { createWriteStream, existsSync } from 'fs';
 import { Message } from '../../libs/enums/common.enum';
+import path from 'path';
 
 @Resolver()
 export class MemberResolver {
@@ -126,44 +127,44 @@ export class MemberResolver {
 	}
 
 	@UseGuards(AuthGuard)
-	@Mutation((returns) => [String])
+	@Mutation(() => [String])
 	public async imagesUploader(
 		@Args('files', { type: () => [GraphQLUpload] })
 		files: Promise<FileUpload>[],
-		@Args('target') target: String,
+		@Args('target') target: string,
 	): Promise<string[]> {
 		console.log('Mutation: imagesUploader');
-
 		const uploadedImages: string[] = [];
-		const promisedList = files.map(async (img: Promise<FileUpload>, index: number): Promise<void> => {
-			try {
-				const { filename, mimetype, encoding, createReadStream } = await img;
 
-				const validImage = isValidImage(filename, mimetype);
+		const promisedList = files.map(async (img, index) => {
+			const { filename, mimetype, createReadStream } = await img;
 
-				if (!validImage) {
-					throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
-				}
-
-				const imageName = getSerialForImage(filename);
-				const url = `uploads/${target}/${imageName}`;
-				const stream = createReadStream();
-
-				const result = await new Promise<boolean>((resolve, reject) => {
-					stream
-						.pipe(createWriteStream(url))
-						.on('finish', () => resolve(true))
-						.on('error', () => reject(false));
-				});
-				if (!result) throw new Error(Message.UPLOAD_FAILED);
-
-				uploadedImages[index] = url;
-			} catch (err) {
-				console.log('Error, file missing!');
+			if (!filename) {
+				throw new Error(Message.UPLOAD_FAILED);
 			}
-		});
 
+			const validImage = isValidImage(filename, mimetype);
+
+			if (!validImage) {
+				throw new Error(Message.PROVIDE_ALLOWED_FORMAT);
+			}
+
+			const imageName = getSerialForImage(filename);
+			const url = `uploads/${target}/${imageName}`;
+
+			const stream = createReadStream();
+
+			await new Promise<void>((resolve, reject) => {
+				stream
+					.pipe(createWriteStream(url))
+					.on('finish', () => resolve())
+					.on('error', reject);
+			});
+
+			uploadedImages[index] = url;
+		});
 		await Promise.all(promisedList);
+
 		return uploadedImages;
 	}
 }

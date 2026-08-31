@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, ObjectId, Schema } from 'mongoose';
 import { AuthService } from '../auth/auth.service';
 import { ViewService } from '../view/view.service';
-import { AgentPropertiesInquiry, PropertiesInquiry, PropertyInput } from '../../libs/dto/property/property.input';
+import { AgentPropertiesInquiry, AllPropertiesInquiry, PropertiesInquiry, PropertyInput } from '../../libs/dto/property/property.input';
 import { Properties, Property } from '../../libs/dto/property/property';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { MemberService } from '../member/member.service';
@@ -130,36 +130,6 @@ export class PropertyService {
 
 		return result[0];
 	}
-	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {
-		const {
-			memberId,
-			locationList,
-			roomsList,
-			bedsList,
-			typeList,
-			periodsRange,
-			pricesRange,
-			squaresRange,
-			options,
-			text,
-		} = input.search;
-		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
-		if (locationList) match.propertyLocation = { $in: locationList };
-		if (roomsList) match.propertyRooms = { $in: roomsList };
-		if (bedsList) match.propertyBeds = { $in: bedsList };
-		if (typeList) match.propertyType = { $in: typeList };
-
-		if (pricesRange) match.propertyPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
-		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
-		if (squaresRange) match.propertySquare = { $gte: squaresRange.start, $lte: squaresRange.end };
-
-		if (text) match.propertyTitle = { $regex: new RegExp(text, 'i') };
-		if (options) {
-			match['$or'] = options.map((ele) => {
-				return { [ele]: true };
-			});
-		}
-	}
 	public async getAgentProperties(memberId: ObjectId, input: AgentPropertiesInquiry): Promise<Properties> {
 		const { propertyStatus } = input.search;
 		if (propertyStatus === PropertyStatus.DELETE) throw new BadRequestException(Message.NOT_ALLOWED_REQUEST);
@@ -190,5 +160,65 @@ export class PropertyService {
 		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		return result[0];
+	}
+
+	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> {
+		const { propertyStatus, propertyLocationList } = input.search;
+		const match: T = {};
+		const sort: T = { [input?.sort ?? 'createdAt']: input?.direction ?? Direction.DESC };
+
+		if (propertyStatus) match.propertyStatus = propertyStatus;
+		if (propertyLocationList) match.propertyLocation = { $in: propertyLocationList };
+
+		const result = await this.propertyModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: sort },
+				{
+					$facet: {
+						list: [
+							{ $skip: (input.page - 1) * input.limit },
+							{ $limit: input.limit },
+							lookupMember,
+							{ $unwind: '$memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
+					},
+				},
+			])
+			.exec();
+		if (!result.length) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+
+		return result[0];
+	}
+	private shapeMatchQuery(match: T, input: PropertiesInquiry): void {
+		const {
+			memberId,
+			locationList,
+			roomsList,
+			bedsList,
+			typeList,
+			periodsRange,
+			pricesRange,
+			squaresRange,
+			options,
+			text,
+		} = input.search;
+		if (memberId) match.memberId = shapeIntoMongoObjectId(memberId);
+		if (locationList) match.propertyLocation = { $in: locationList };
+		if (roomsList) match.propertyRooms = { $in: roomsList };
+		if (bedsList) match.propertyBeds = { $in: bedsList };
+		if (typeList) match.propertyType = { $in: typeList };
+
+		if (pricesRange) match.propertyPrice = { $gte: pricesRange.start, $lte: pricesRange.end };
+		if (periodsRange) match.createdAt = { $gte: periodsRange.start, $lte: periodsRange.end };
+		if (squaresRange) match.propertySquare = { $gte: squaresRange.start, $lte: squaresRange.end };
+
+		if (text) match.propertyTitle = { $regex: new RegExp(text, 'i') };
+		if (options) {
+			match['$or'] = options.map((ele) => {
+				return { [ele]: true };
+			});
+		}
 	}
 }

@@ -24,4 +24,5 @@ export class ViewService {
 		const result = await this.viewModel.findOne(search).exec();
 		return result;
 	}
+	
 }

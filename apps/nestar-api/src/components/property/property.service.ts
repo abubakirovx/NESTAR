@@ -65,20 +65,7 @@ export class PropertyService {
 		targetProperty.memberData = (await this.memberService.getMember(null, targetProperty.memberId)) as any;
 		return targetProperty;
 	}
-	public async propertyStatsEditor(input: StatisticModifier): Promise<Property> {
-		const { _id, targetKey, modifier } = input;
-		const result = await this.propertyModel
-			.findByIdAndUpdate(
-				_id,
-				{ $inc: { [targetKey]: modifier } },
-				{
-					new: true,
-				},
-			)
-			.exec();
-		if (!result) throw new InternalServerErrorException(Message.BAD_REQUEST);
-		return result;
-	}
+
 	public async updateProperty(memberId: ObjectId, input: PropertyUpdate): Promise<Property> {
 		let { propertyStatus, soldAt, deletedAt } = input;
 		const search: T = {
@@ -259,5 +246,19 @@ export class PropertyService {
 				return { [ele]: true };
 			});
 		}
+	}
+	public async propertyStatsEditor(input: StatisticModifier): Promise<Property> {
+		const { _id, targetKey, modifier } = input;
+		const result = await this.propertyModel
+			.findByIdAndUpdate(
+				_id,
+				{ $inc: { [targetKey]: modifier } },
+				{
+					new: true,
+				},
+			)
+			.exec();
+		if (!result) throw new InternalServerErrorException(Message.BAD_REQUEST);
+		return result;
 	}
 }

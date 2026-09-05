@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { Model, ObjectId } from 'mongoose';
 import { BoardArticle, BoardArticles } from '../../libs/dto/board-article/board-article';
-import { AuthService } from '../auth/auth.service';
 import { ViewService } from '../view/view.service';
 import { MemberService } from '../member/member.service';
 import { InjectModel } from '@nestjs/mongoose';
@@ -21,7 +20,6 @@ import { lookupMember, shapeIntoMongoObjectId } from '../../libs/config';
 export class BoardArticleService {
 	constructor(
 		@InjectModel('BoardArticle') private readonly boardArticleModel: Model<BoardArticle>,
-		private authService: AuthService,
 		private viewService: ViewService,
 		private memberService: MemberService,
 	) {}

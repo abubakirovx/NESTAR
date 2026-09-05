@@ -135,11 +135,11 @@ export class MemberService {
 		return result;
 	}
 	public async memberStatsEditor(input: StatisticModifier): Promise<Member> {
-		console.log("excuted!");
-		
+		console.log('excuted!');
+
 		const { _id, targetKey, modifier } = input;
 		const result = await this.memberModel
-			.findOneAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true })
+			.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true })
 			.exec();
 		if (!result) throw new InternalServerErrorException(Message.BAD_REQUEST);
 		return result;

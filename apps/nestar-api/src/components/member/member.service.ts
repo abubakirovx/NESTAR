@@ -142,7 +142,6 @@ export class MemberService {
 			likeGroup:LikeGroup.MEMBER
 		}
 
-		// LIKE TOOGLE
 		const modifier: number = await this.likeService.toggleLikes(input);
 		const result = await this.memberStatsEditor({
 			_id: likeRefId,

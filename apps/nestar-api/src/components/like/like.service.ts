@@ -1,18 +1,31 @@
-import { Injectable } from '@nestjs/common';
-import { MemberService } from '../member/member.service';
-import { PropertyService } from '../property/property.service';
-import { BoardArticleService } from '../board-article/board-article.service';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Like } from '../../libs/dto/like/like';
+import { LikeInput } from '../../libs/dto/like/like.input';
+import { T } from '../../libs/types/common';
+import { Message } from '../../libs/enums/common.enum';
 
 @Injectable()
 export class LikeService {
-    constructor(
-            @InjectModel('Like') private readonly likeModel: Model<Like>,
-            private memberService: MemberService,
-            private propertyService: PropertyService,
-            private boardArticleService: BoardArticleService,
-        ) {}
-        
+	constructor(@InjectModel('Like') private readonly likeModel: Model<Like>) {}
+	public async toggleLikes(input: LikeInput): Promise<number> {
+		const search: T = { memberId: input.memberId, likeRefId: input.likeRefId },
+			exist = await this.likeModel.findOne(search).exec();
+		let modifier = 1;
+		if (exist) {
+			await this.likeModel.findOneAndDelete(search).exec();
+			modifier = -1;
+		} else {
+			try {
+				await this.likeModel.create(input);
+			} catch (err) {
+				console.log('Service ERROR', err.message);
+				throw new BadRequestException(Message.CREATE_FAILED);
+			}
+		}
+		console.log('-like modifier', modifier);
+
+		return modifier;
+	}
 }

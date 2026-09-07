@@ -14,9 +14,9 @@ import { FollowModule } from './follow/follow.module';
 		AuthModule,
 		PropertyModule,
 		BoardArticleModule,
+		ViewModule,
 		CommentModule,
 		LikeModule,
-		ViewModule,
 		FollowModule,
 	],
 })

@@ -67,6 +67,7 @@ export class MemberService {
 			{
 				$facet: {
 					list: [{ $skip: (input.page - 1) * input.limit }, { $limit: input.limit }],
+					//meLiked
 					metaCounter: [{ $count: 'total' }],
 				},
 			},

@@ -1,7 +1,6 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, ObjectId, Schema } from 'mongoose';
-import { AuthService } from '../auth/auth.service';
+import { Model, ObjectId} from 'mongoose';
 import { ViewService } from '../view/view.service';
 import {
 	AgentPropertiesInquiry,
@@ -17,7 +16,7 @@ import { PropertyStatus } from '../../libs/enums/property.enum';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { PropertyUpdate } from '../../libs/dto/property/property.update';
 import moment from 'moment';
-import { lookupMember } from '../../libs/config';
+import { lookupAuthMemberLiked, lookupMember } from '../../libs/config';
 import { shapeIntoMongoObjectId } from '../../libs/config';
 import { LikeInput } from '../../libs/dto/like/like.input';
 import { LikeGroup } from '../../libs/enums/like.enum';
@@ -35,7 +34,6 @@ export class PropertyService {
 	public async createProperty(input: PropertyInput): Promise<Property> {
 		try {
 			const result = await this.propertyModel.create(input);
-			// Increase memberProperties
 			await this.memberService.memberStatsEditor({
 				_id: result.memberId,
 				targetKey: 'memberProperties',
@@ -113,7 +111,7 @@ export class PropertyService {
 						list: [
 							{ $skip: (input.page - 1) * input.limit },
 							{ $limit: input.limit },
-							// meLiked
+							lookupAuthMemberLiked(memberId),
 							lookupMember,
 							{ $unwind: '$memberData' },
 						],

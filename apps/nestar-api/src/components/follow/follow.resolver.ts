@@ -29,8 +29,8 @@ export class FollowResolver {
 		@AuthMember('_id') memberId: ObjectId, //
 	): Promise<Follower> {
 		console.log('Mutation subscribe');
-		const unfollowingId = shapeIntoMongoObjectId(input);
-		return await this.followService.unsubscribe(memberId, unfollowingId);
+		const followingId = shapeIntoMongoObjectId(input);
+		return await this.followService.unsubscribe(memberId, followingId);
 	}
 	@UseGuards(WithoutGuard)
 	@Query((returns) => Followings)

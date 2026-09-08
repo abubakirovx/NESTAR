@@ -37,16 +37,16 @@ export class FollowService {
 			throw new BadRequestException(Message.CREATE_FAILED);
 		}
 	}
-	public async unsubscribe(unfollowerId: ObjectId, unfollowingId: ObjectId): Promise<Follower> {
-		if (!(await this.memberService.getMember(null, unfollowingId)))
+	public async unsubscribe(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
+		if (!(await this.memberService.getMember(null, followingId)))
 			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 		const result = await this.followModel.findOneAndDelete({
-			followerId: unfollowerId,
-			followingId: unfollowingId,
+			followerId: followerId,
+			followingId: followingId,
 		});
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
-		await this.memberService.memberStatsEditor({ _id: unfollowerId, targetKey: 'memberFollowings', modifier: -1 });
-		await this.memberService.memberStatsEditor({ _id: unfollowingId, targetKey: 'memberFollowers', modifier: -1 });
+		await this.memberService.memberStatsEditor({ _id: followerId, targetKey: 'memberFollowings', modifier: -1 });
+		await this.memberService.memberStatsEditor({ _id: followingId, targetKey: 'memberFollowers', modifier: -1 });
 		return result;
 	}
 	public async getMemberFollowings(memberId: ObjectId, input: FollowInquiry): Promise<Followings> {

@@ -52,7 +52,7 @@ export class PropertyService {
 			_id: propertyId,
 			propertyStatus: PropertyStatus.ACTIVE,
 		};
-		const targetProperty = await this.propertyModel.findOne(search).lean().exec();
+		const targetProperty: Property | null = await this.propertyModel.findOne(search).lean().exec();
 		if (!targetProperty) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		if (memberId) {
@@ -63,7 +63,8 @@ export class PropertyService {
 				await this.propertyStatsEditor({ _id: propertyId, targetKey: 'propertyViews', modifier: 1 });
 				targetProperty.propertyViews++;
 			}
-			// meLiked
+			const likeInput = { memberId: memberId, likeRefId: propertyId, likeGroup: LikeGroup.PROPERTY };
+			targetProperty.meLiked = await this.likeService.checkLikeExistance(likeInput);
 		}
 		targetProperty.memberData = (await this.memberService.getMember(null, targetProperty.memberId)) as any;
 		return targetProperty;
@@ -157,24 +158,24 @@ export class PropertyService {
 		return result[0];
 	}
 	public async likeTargetProperty(memberId: ObjectId, likeRefId: ObjectId): Promise<Property> {
-			const target = await this.propertyModel.findOne({ _id: likeRefId, propertyStatus: PropertyStatus.ACTIVE });
-			if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-			const input:LikeInput={
-				memberId:memberId,
-				likeRefId:likeRefId,
-				likeGroup:LikeGroup.PROPERTY
-			}
-	
-			const modifier: number = await this.likeService.toggleLikes(input);
-			const result = await this.propertyStatsEditor({
-				_id: likeRefId,
-				targetKey: 'propertyLikes',
-				modifier: modifier,
-			});
-			return result;
-		}
+		const target = await this.propertyModel.findOne({ _id: likeRefId, propertyStatus: PropertyStatus.ACTIVE });
+		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
+		const input: LikeInput = {
+			memberId: memberId,
+			likeRefId: likeRefId,
+			likeGroup: LikeGroup.PROPERTY,
+		};
 
-// ADMIN
+		const modifier: number = await this.likeService.toggleLikes(input);
+		const result = await this.propertyStatsEditor({
+			_id: likeRefId,
+			targetKey: 'propertyLikes',
+			modifier: modifier,
+		});
+		return result;
+	}
+
+	// ADMIN
 	public async getAllPropertiesByAdmin(input: AllPropertiesInquiry): Promise<Properties> {
 		const { propertyStatus, propertyLocationList } = input.search;
 		const match: T = {};

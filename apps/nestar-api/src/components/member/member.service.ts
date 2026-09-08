@@ -30,7 +30,7 @@ export class MemberService {
 				$in: [MemberStatus.ACTIVE, MemberStatus.BLOCK],
 			},
 		};
-		const targetMember = await this.memberModel.findOne(search).lean().exec();
+		const targetMember: Member | null = await this.memberModel.findOne(search).lean().exec();
 		if (!targetMember) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
 
 		if (memberId) {
@@ -40,10 +40,10 @@ export class MemberService {
 				await this.memberModel.findOneAndUpdate(search, { $inc: { memberViews: 1 } }, { new: true }).exec();
 				targetMember.memberViews++;
 			}
+			const likeInput = { memberId: memberId, likeRefId: targetId, likeGroup: LikeGroup.MEMBER };
+			targetMember.meLiked = await this.likeService.checkLikeExistance(likeInput);
+			// me Followed
 		}
-
-		// me Liked
-		// me Followed
 
 		return targetMember;
 	}
@@ -136,11 +136,11 @@ export class MemberService {
 	public async likeTargetMember(memberId: ObjectId, likeRefId: ObjectId): Promise<Member> {
 		const target = await this.memberModel.findOne({ _id: likeRefId, memberStatus: MemberStatus.ACTIVE });
 		if (!target) throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-		const input:LikeInput={
-			memberId:memberId,
-			likeRefId:likeRefId,
-			likeGroup:LikeGroup.MEMBER
-		}
+		const input: LikeInput = {
+			memberId: memberId,
+			likeRefId: likeRefId,
+			likeGroup: LikeGroup.MEMBER,
+		};
 
 		const modifier: number = await this.likeService.toggleLikes(input);
 		const result = await this.memberStatsEditor({
@@ -157,7 +157,6 @@ export class MemberService {
 		return result;
 	}
 	public async memberStatsEditor(input: StatisticModifier): Promise<Member> {
-
 		const { _id, targetKey, modifier } = input;
 		const result = await this.memberModel
 			.findByIdAndUpdate(_id, { $inc: { [targetKey]: modifier } }, { new: true })

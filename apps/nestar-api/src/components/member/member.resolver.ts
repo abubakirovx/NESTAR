@@ -13,9 +13,8 @@ import { MemberUpdate } from '../../libs/dto/member/member.update';
 import { getSerialForImage, isValidImage, shapeIntoMongoObjectId } from '../../libs/config';
 import { WithoutGuard } from '../auth/guards/without.guard';
 import { GraphQLUpload, FileUpload } from 'graphql-upload';
-import { createWriteStream, existsSync } from 'fs';
+import { createWriteStream} from 'fs';
 import { Message } from '../../libs/enums/common.enum';
-import path from 'path';
 
 @Resolver()
 export class MemberResolver {
@@ -60,10 +59,10 @@ export class MemberResolver {
 
 	@UseGuards(AuthGuard)
 	@Query(() => String)
-	public async checkAuth(@AuthMember('memberNick') memberNick: string): Promise<string> {
+	public async checkAuth(@AuthMember() input: Member): Promise<string> {
 		console.log('Query: checkAuth');
 
-		return `Hi ${memberNick}`;
+		return `Hi ${input.memberNick}, ID ${input._id}, you are ${input.memberType}`;
 	}
 
 	@Roles(MemberType.USER, MemberType.AGENT)

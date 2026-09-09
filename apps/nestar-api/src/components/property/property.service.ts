@@ -173,8 +173,12 @@ export class PropertyService {
 		});
 		return result;
 	}
-	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
+	public async getFavoriteProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
 		const result = this.likeService.getFavoriteProperties(memberId, input);
+		return result;
+	}
+	public async getVisitedProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
+		const result = this.viewService.getVisitedProperties(memberId, input);
 		return result;
 	}
 

@@ -75,12 +75,21 @@ export class PropertyResolver {
 	}
 	@UseGuards(AuthGuard)
 	@Query((returns) => Properties)
-	public async getFavorites(
+	public async getFavoriteProperties(
 		@Args('input') input: OrdinaryInquiry,
 		@AuthMember('_id') memberId: ObjectId,
 	): Promise<Properties> {
-		console.log('Query: getFavorites');
-		return await this.propertyService.getFavorites(memberId, input);
+		console.log('Query: getFavoriteProperties');
+		return await this.propertyService.getFavoriteProperties(memberId, input);
+	}
+	@UseGuards(AuthGuard)
+	@Query((returns) => Properties)
+	public async getVisitedProperties(
+		@Args('input') input: OrdinaryInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Properties> {
+		console.log('Query: getVisitedProperties');
+		return await this.propertyService.getVisitedProperties(memberId, input);
 	}
 	@UseGuards(AuthGuard)
 	@Mutation(() => Property)

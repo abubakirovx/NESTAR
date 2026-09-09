@@ -29,38 +29,37 @@ export class ViewService {
 		return result;
 	}
 	public async getVisitedProperties(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
-			const { page, limit } = input;
-			const match: T = { viewGroup: ViewGroup.PROPERTY, memberId: memberId };
-			const data: T = await this.viewModel
-				.aggregate([
-					{ $match: match },
-					{ $sort: { updatedAt: -1 } },
-					{
-						$lookup: {
-							from: 'properties',
-							localField: 'viewRefId',
-							foreignField: '_id',
-							as: 'visitedProperty',
-						},
+		const { page, limit } = input;
+		const match: T = { viewGroup: ViewGroup.PROPERTY, memberId: memberId };
+		const data: T = await this.viewModel
+			.aggregate([
+				{ $match: match },
+				{ $sort: { updatedAt: -1 } },
+				{
+					$lookup: {
+						from: 'properties',
+						localField: 'viewRefId',
+						foreignField: '_id',
+						as: 'visitedProperty',
 					},
-					{ $unwind: '$visitedProperty' },
-					{
-						$facet: {
-							list: [
-								{ $skip: (page - 1) * limit },
-								{ $limit: limit },
-								lookupVisited,
-								{ $unwind: '$visitedProperty.memberData' },
-							],
-							metaCounter: [{ $count: 'total' }],
-						},
+				},
+				{ $unwind: '$visitedProperty' },
+				{
+					$facet: {
+						list: [
+							{ $skip: (page - 1) * limit },
+							{ $limit: limit },
+							lookupVisited,
+							{ $unwind: '$visitedProperty.memberData' },
+						],
+						metaCounter: [{ $count: 'total' }],
 					},
-				])
-				.exec();
-			const result: Properties = { list: [], metaCounter: data[0].metaCounter };
-			result.list = data[0].list.map((ele) => ele.visitedProperty);
-	
-			return result;
-		}
-	
+				},
+			])
+			.exec();
+		const result: Properties = { list: [], metaCounter: data[0].metaCounter };
+		result.list = data[0].list.map((ele) => ele.visitedProperty);
+
+		return result;
+	}
 }

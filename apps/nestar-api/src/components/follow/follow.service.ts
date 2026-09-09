@@ -6,7 +6,12 @@ import { MemberService } from '../member/member.service';
 import { Direction, Message } from '../../libs/enums/common.enum';
 import { FollowInquiry } from '../../libs/dto/follow/follow.input';
 import { T } from '../../libs/types/common';
-import { lookupAuthMemberLiked, lookupFollowerData, lookupFollowingData } from '../../libs/config';
+import {
+	lookupAuthMemberFollowed,
+	lookupAuthMemberLiked,
+	lookupFollowerData,
+	lookupFollowingData,
+} from '../../libs/config';
 
 @Injectable()
 export class FollowService {
@@ -54,7 +59,7 @@ export class FollowService {
 		if (!search?.followerId) throw new InternalServerErrorException(Message.BAD_REQUEST);
 		const match: T = { followerId: search?.followerId };
 		console.log('match:', match);
-
+		
 		const result = await this.followModel
 			.aggregate([
 				{ $match: match },
@@ -66,7 +71,7 @@ export class FollowService {
 							{ $limit: limit },
 							lookupAuthMemberLiked(memberId, '$followingId'),
 
-							// meFollowed
+							lookupAuthMemberFollowed({ followerId: memberId, followingId: '$followingId' }),
 							lookupFollowingData,
 							{ $unwind: '$followingData' },
 						],
@@ -85,6 +90,7 @@ export class FollowService {
 		const match: T = { followingId: search?.followingId };
 		console.log('match:', match);
 
+
 		const result = await this.followModel
 			.aggregate([
 				{ $match: match },
@@ -96,7 +102,8 @@ export class FollowService {
 							{ $limit: limit },
 							lookupAuthMemberLiked(memberId, '$followerId'),
 
-							// meFollowed
+							lookupAuthMemberFollowed({ followerId: memberId, followingId: '$followerId' }),
+
 							lookupFollowerData,
 							{ $unwind: '$followerData' },
 						],

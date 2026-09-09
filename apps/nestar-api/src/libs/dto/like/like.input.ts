@@ -17,3 +17,4 @@ export class LikeInput {
 	@Field(() => LikeGroup)
 	likeGroup: LikeGroup;
 }
+

@@ -8,6 +8,7 @@ import { MemberType } from '../../libs/enums/member.enum';
 import {
 	AgentPropertiesInquiry,
 	AllPropertiesInquiry,
+	OrdinaryInquiry,
 	PropertiesInquiry,
 	PropertyInput,
 } from '../../libs/dto/property/property.input';
@@ -71,6 +72,15 @@ export class PropertyResolver {
 	): Promise<Properties> {
 		console.log('Query: getAgentProperties');
 		return await this.propertyService.getAgentProperties(memberId, input);
+	}
+	@UseGuards(AuthGuard)
+	@Query((returns) => Properties)
+	public async getFavorites(
+		@Args('input') input: OrdinaryInquiry,
+		@AuthMember('_id') memberId: ObjectId,
+	): Promise<Properties> {
+		console.log('Query: getFavorites');
+		return await this.propertyService.getFavorites(memberId, input);
 	}
 	@UseGuards(AuthGuard)
 	@Mutation(() => Property)

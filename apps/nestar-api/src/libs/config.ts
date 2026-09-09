@@ -71,6 +71,14 @@ export const lookupFollowerData = {
 		as: 'followerData',
 	},
 };
+export const lookupFavorites = {
+	$lookup: {
+		from: 'members',
+		localField: 'favoriteProperty.memberId',
+		foreignField: '_id',
+		as: 'favoriteProperty.memberData',
+	},
+};
 export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id') => {
 	return {
 		$lookup: {
@@ -104,12 +112,12 @@ export const lookupAuthMemberLiked = (memberId: T, targetRefId: string = '$_id')
 		},
 	};
 };
-interface LookupAuthMemberFollowed{
-   followerId:T,
-   followingId:string
+interface LookupAuthMemberFollowed {
+	followerId: T;
+	followingId: string;
 }
-export const lookupAuthMemberFollowed = (input:LookupAuthMemberFollowed) => {
-	const {followerId,followingId}=input
+export const lookupAuthMemberFollowed = (input: LookupAuthMemberFollowed) => {
+	const { followerId, followingId } = input;
 	return {
 		$lookup: {
 			from: 'follows',

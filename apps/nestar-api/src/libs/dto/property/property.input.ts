@@ -197,7 +197,7 @@ export class ADPISearch {
 	@IsOptional()
 	@Field(() => PropertyStatus, { nullable: true })
 	propertyStatus?: PropertyStatus;
-	
+
 	@IsOptional()
 	@Field(() => PropertyLocation, { nullable: true })
 	propertyLocationList?: PropertyLocation;
@@ -226,4 +226,16 @@ export class AllPropertiesInquiry {
 	@IsNotEmpty()
 	@Field(() => ADPISearch)
 	search: ADPISearch;
+}
+@InputType()
+export class OrdinaryInquiry {
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	page: number;
+
+	@IsNotEmpty()
+	@Min(1)
+	@Field(() => Int)
+	limit: number;
 }

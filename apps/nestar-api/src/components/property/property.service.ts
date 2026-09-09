@@ -1,10 +1,11 @@
 import { BadRequestException, Injectable, InternalServerErrorException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model, ObjectId} from 'mongoose';
+import { Model, ObjectId } from 'mongoose';
 import { ViewService } from '../view/view.service';
 import {
 	AgentPropertiesInquiry,
 	AllPropertiesInquiry,
+	OrdinaryInquiry,
 	PropertiesInquiry,
 	PropertyInput,
 } from '../../libs/dto/property/property.input';
@@ -170,6 +171,10 @@ export class PropertyService {
 			targetKey: 'propertyLikes',
 			modifier: modifier,
 		});
+		return result;
+	}
+	public async getFavorites(memberId: ObjectId, input: OrdinaryInquiry): Promise<Properties> {
+		const result = this.likeService.getFavoriteProperties(memberId, input);
 		return result;
 	}
 

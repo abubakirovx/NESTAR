@@ -41,5 +41,5 @@ export class Comments {
 	list: Comment[];
 
 	@Field(() => [TotalCounter], { nullable: true })
-	metaCounter: TotalCounter[];
+	metaCounter?: TotalCounter[];
 }

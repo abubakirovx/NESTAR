@@ -15,7 +15,7 @@ export class FollowResolver {
 	@UseGuards(AuthGuard)
 	@Mutation((returns) => Follower)
 	public async subscribe(
-		@Args('followingId') input: string,
+		@Args('input') input: string,
 		@AuthMember('_id') memberId: ObjectId, //
 	): Promise<Follower> {
 		console.log('Mutation subscribe');
@@ -24,7 +24,7 @@ export class FollowResolver {
 	}
 	@UseGuards(AuthGuard)
 	@Mutation((returns) => Follower)
-	public async unsubcribe(
+	public async unsubscribe(
 		@Args('input') input: string,
 		@AuthMember('_id') memberId: ObjectId, //
 	): Promise<Follower> {

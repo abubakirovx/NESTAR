@@ -45,10 +45,12 @@ export class FollowService {
 	public async unsubscribe(followerId: ObjectId, followingId: ObjectId): Promise<Follower> {
 		if (!(await this.memberService.getMember(null, followingId)))
 			throw new InternalServerErrorException(Message.NO_DATA_FOUND);
-		const result = await this.followModel.findOneAndDelete({
-			followerId: followerId,
-			followingId: followingId,
-		});
+		const result = await this.followModel
+			.findOneAndDelete({
+				followerId: followerId,
+				followingId: followingId,
+			})
+			.exec();
 		if (!result) throw new InternalServerErrorException(Message.REMOVE_FAILED);
 		await this.memberService.memberStatsEditor({ _id: followerId, targetKey: 'memberFollowings', modifier: -1 });
 		await this.memberService.memberStatsEditor({ _id: followingId, targetKey: 'memberFollowers', modifier: -1 });
@@ -59,7 +61,7 @@ export class FollowService {
 		if (!search?.followerId) throw new InternalServerErrorException(Message.BAD_REQUEST);
 		const match: T = { followerId: search?.followerId };
 		console.log('match:', match);
-		
+
 		const result = await this.followModel
 			.aggregate([
 				{ $match: match },
@@ -89,7 +91,6 @@ export class FollowService {
 		if (!search?.followingId) throw new InternalServerErrorException(Message.BAD_REQUEST);
 		const match: T = { followingId: search?.followingId };
 		console.log('match:', match);
-
 
 		const result = await this.followModel
 			.aggregate([

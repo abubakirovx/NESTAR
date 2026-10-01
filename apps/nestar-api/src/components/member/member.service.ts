@@ -122,7 +122,7 @@ export class MemberService {
 		result.accessToken = await this.authService.createToken(result);
 		return result;
 	}
-	public async getAllMemberByAdmin(input: MembersInquiry): Promise<Members> {
+	public async getAllMembersByAdmin(input: MembersInquiry): Promise<Members> {
 		const text = input.search?.text,
 			memberStatus = input.search?.memberStatus,
 			memberType = input.search?.memberType,

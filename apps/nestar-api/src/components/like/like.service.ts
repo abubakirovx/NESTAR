@@ -9,6 +9,7 @@ import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Properties } from '../../libs/dto/property/property';
 import { LikeGroup } from '../../libs/enums/like.enum';
 import { lookupFavorites } from '../../libs/config';
+import { PropertyStatus } from '../../libs/enums/property.enum';
 
 @Injectable()
 export class LikeService {
@@ -53,6 +54,11 @@ export class LikeService {
 					},
 				},
 				{ $unwind: '$favoriteProperty' },
+				{
+					$match: {
+					  'favoriteProperty.propertyStatus': { $ne: PropertyStatus.DELETE },
+					},
+				  },
 				{
 					$facet: {
 						list: [

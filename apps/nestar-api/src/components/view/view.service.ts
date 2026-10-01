@@ -8,6 +8,7 @@ import { OrdinaryInquiry } from '../../libs/dto/property/property.input';
 import { Properties } from '../../libs/dto/property/property';
 import { ViewGroup } from '../../libs/enums/view.enum';
 import { lookupFavorites, lookupVisited } from '../../libs/config';
+import { PropertyStatus } from '../../libs/enums/property.enum';
 
 @Injectable()
 export class ViewService {
@@ -44,6 +45,11 @@ export class ViewService {
 					},
 				},
 				{ $unwind: '$visitedProperty' },
+				{
+					$match: {
+						'visitedProperty.propertyStatus': { $ne: PropertyStatus.DELETE },
+					},
+				},
 				{
 					$facet: {
 						list: [

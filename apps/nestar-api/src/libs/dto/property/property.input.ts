@@ -199,8 +199,8 @@ export class ADPISearch {
 	propertyStatus?: PropertyStatus;
 
 	@IsOptional()
-	@Field(() => PropertyLocation, { nullable: true })
-	propertyLocationList?: PropertyLocation;
+	@Field(() => [PropertyLocation], { nullable: true })
+	propertyLocationList?: PropertyLocation[];
 }
 @InputType()
 export class AllPropertiesInquiry {
